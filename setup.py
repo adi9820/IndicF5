@@ -20,7 +20,7 @@ setup(
         "jieba",
         "librosa",
         "matplotlib",
-        "numpy<=1.26.4",
+        "numpy==1.26.4",
         "pydub",
         "pypinyin",
         "safetensors",

@@ -291,29 +291,29 @@ def preprocess_ref_audio_text(ref_audio_orig, ref_text, clip_short=True, show_in
             )
             non_silent_wave = AudioSegment.silent(duration=0)
             for non_silent_seg in non_silent_segs:
-                if len(non_silent_wave) > 6000 and len(non_silent_wave + non_silent_seg) > 15000:
-                    show_info("Audio is over 15s, clipping short. (1)")
+                if len(non_silent_wave) > 6000 and len(non_silent_wave + non_silent_seg) > 60000:
+                    show_info("Audio is over 60s, clipping short. (1)")
                     break
                 non_silent_wave += non_silent_seg
 
             # 2. try to find short silence for clipping if 1. failed
-            if len(non_silent_wave) > 15000:
+            if len(non_silent_wave) > 60000:
                 non_silent_segs = silence.split_on_silence(
                     aseg, min_silence_len=100, silence_thresh=-40, keep_silence=1000, seek_step=10
                 )
                 non_silent_wave = AudioSegment.silent(duration=0)
                 for non_silent_seg in non_silent_segs:
-                    if len(non_silent_wave) > 6000 and len(non_silent_wave + non_silent_seg) > 15000:
-                        show_info("Audio is over 15s, clipping short. (2)")
+                    if len(non_silent_wave) > 6000 and len(non_silent_wave + non_silent_seg) > 60000:
+                        show_info("Audio is over 60s, clipping short. (2)")
                         break
                     non_silent_wave += non_silent_seg
 
             aseg = non_silent_wave
 
             # 3. if no proper silence found for clipping
-            if len(aseg) > 15000:
-                aseg = aseg[:15000]
-                show_info("Audio is over 15s, clipping short. (3)")
+            if len(aseg) > 60000:
+                aseg = aseg[:60000]
+                show_info("Audio is over 60s, clipping short. (3)")
 
         aseg = remove_silence_edges(aseg) + AudioSegment.silent(duration=50)
         aseg.export(f.name, format="wav")

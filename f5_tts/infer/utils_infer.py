@@ -141,7 +141,6 @@ def initialize_asr_pipeline(device: str = device, dtype=None):
             torch.float16
             if "cuda" in device
             and torch.cuda.get_device_properties(device).major >= 6
-            and not torch.cuda.get_device_name().endswith("[ZLUDA]")
             else torch.float32
         )
     global asr_pipe
@@ -179,7 +178,6 @@ def load_checkpoint(model, ckpt_path, device: str, dtype=None, use_ema=True):
             torch.float16
             if "cuda" in device
             and torch.cuda.get_device_properties(device).major >= 6
-            and not torch.cuda.get_device_name().endswith("[ZLUDA]")
             else torch.float32
         )
     model = model.to(dtype)

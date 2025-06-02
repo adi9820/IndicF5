@@ -136,13 +136,15 @@ asr_pipe = None
 
 
 def initialize_asr_pipeline(device: str = device, dtype=None):
-    if dtype is None:
-        dtype = (
-            torch.float16
-            if "cuda" in device
-            and torch.cuda.get_device_properties(device).major >= 6
-            else torch.float32
-        )
+    if "cuda" in device:
+            if torch.cuda.is_bf16_supported():
+                dtype = torch.bfloat16
+            elif torch.cuda.get_device_properties(device).major >= 6:
+                dtype = torch.float16
+            else:
+                dtype = torch.float32
+        else:
+            dtype = torch.float32
     global asr_pipe
     asr_pipe = pipeline(
         "automatic-speech-recognition",
@@ -172,14 +174,15 @@ def transcribe(ref_audio, language=None):
 
 
 def load_checkpoint(model, ckpt_path, device: str, dtype=None, use_ema=True):
-    if dtype is None:
-        #dtype = torch.float32
-        dtype = (
-            torch.float16
-            if "cuda" in device
-            and torch.cuda.get_device_properties(device).major >= 6
-            else torch.float32
-        )
+    if "cuda" in device:
+            if torch.cuda.is_bf16_supported():
+                dtype = torch.bfloat16
+            elif torch.cuda.get_device_properties(device).major >= 6:
+                dtype = torch.float16
+            else:
+                dtype = torch.float32
+        else:
+            dtype = torch.float32
     model = model.to(dtype)
 
     ckpt_type = ckpt_path.split(".")[-1]

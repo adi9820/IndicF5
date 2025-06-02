@@ -137,10 +137,7 @@ asr_pipe = None
 
 def initialize_asr_pipeline(device: str = device, dtype=None):
     if "cuda" in device:
-            if torch.cuda.get_device_properties(device).major >= 6:
-                dtype = torch.float16
-            else:
-                dtype = torch.float32
+        dtype = torch.float32
     else:
         dtype = torch.float32
     global asr_pipe

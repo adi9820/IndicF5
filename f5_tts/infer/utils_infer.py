@@ -143,8 +143,8 @@ def initialize_asr_pipeline(device: str = device, dtype=None):
                 dtype = torch.float16
             else:
                 dtype = torch.float32
-        else:
-            dtype = torch.float32
+    else:
+        dtype = torch.float32
     global asr_pipe
     asr_pipe = pipeline(
         "automatic-speech-recognition",
@@ -181,8 +181,8 @@ def load_checkpoint(model, ckpt_path, device: str, dtype=None, use_ema=True):
                 dtype = torch.float16
             else:
                 dtype = torch.float32
-        else:
-            dtype = torch.float32
+    else:
+        dtype = torch.float32
     model = model.to(dtype)
 
     ckpt_type = ckpt_path.split(".")[-1]

@@ -137,9 +137,7 @@ asr_pipe = None
 
 def initialize_asr_pipeline(device: str = device, dtype=None):
     if "cuda" in device:
-            if torch.cuda.is_bf16_supported():
-                dtype = torch.bfloat16
-            elif torch.cuda.get_device_properties(device).major >= 6:
+            if torch.cuda.get_device_properties(device).major >= 6:
                 dtype = torch.float16
             else:
                 dtype = torch.float32
@@ -175,9 +173,7 @@ def transcribe(ref_audio, language=None):
 
 def load_checkpoint(model, ckpt_path, device: str, dtype=None, use_ema=True):
     if "cuda" in device:
-            if torch.cuda.is_bf16_supported():
-                dtype = torch.bfloat16
-            elif torch.cuda.get_device_properties(device).major >= 6:
+            if torch.cuda.get_device_properties(device).major >= 6:
                 dtype = torch.float16
             else:
                 dtype = torch.float32
@@ -399,55 +395,6 @@ def infer_process(
         fix_duration=fix_duration,
         device=device,
     )
-    
-def infer_from_embedding(
-    speaker_embedding,
-    gen_text,
-    model_obj,
-    vocoder,
-    mel_spec_type="vocos",
-    speed=1.0,
-    nfe_step=32,
-    cfg_strength=2.0,
-    sway_sampling_coef=-1,
-    fix_duration=None,
-    device="cuda"
-):
-    generated_waves = []
-    spectrograms = []
-
-    # Estimate duration if fix_duration is not provided
-    # These are just heuristics since no ref_text is used
-    est_duration = fix_duration
-    if est_duration is None:
-        avg_duration_sec = max(len(gen_text) * 0.06, 1.0)  # crude approximation
-        est_duration = int(avg_duration_sec * target_sample_rate / hop_length)
-
-    # Tokenize gen_text
-    final_text_list = convert_char_to_pinyin([gen_text])
-
-    with torch.inference_mode():
-        generated, _ = model_obj.sample(
-            cond=speaker_embedding.to(device),
-            text=final_text_list,
-            duration=est_duration,
-            steps=nfe_step,
-            cfg_strength=cfg_strength,
-            sway_sampling_coef=sway_sampling_coef,
-        )
-
-        generated = generated.to(torch.float32)
-        generated_mel_spec = generated.permute(0, 2, 1)
-
-        if mel_spec_type == "vocos":
-            generated_wave = vocoder.decode(generated_mel_spec)
-        elif mel_spec_type == "bigvgan":
-            generated_wave = vocoder(generated_mel_spec)
-
-        final_wave = generated_wave.squeeze().cpu().numpy()
-        final_spec = generated_mel_spec[0].cpu().numpy()
-
-    return final_wave, target_sample_rate, final_spec
 
 # infer batches
 
